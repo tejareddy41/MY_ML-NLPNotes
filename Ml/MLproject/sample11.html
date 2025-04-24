@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stacked Uninstalls by Leader</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f4f4f4;
+    }
+    canvas {
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Stacked Bar Chart: Applications Uninstalled by Leader</h2>
+  <canvas id="uninstallChart"></canvas>
+
+  <script>
+    // Sample JSON data (with some rows missing Leader)
+    const jsonData = [
+      { "Leader": "Alice", "Employee": "John", "App Uninstalled": "Zoom" },
+      { "Leader": "Alice", "Employee": "Doe", "App Uninstalled": "Slack" },
+      { "Leader": "", "Employee": "Unknown", "App Uninstalled": "Zoom" },   // should be skipped
+      { "Employee": "Ghost", "App Uninstalled": "Teams" },                  // should be skipped
+      { "Leader": "Alice", "Employee": "Jane", "App Uninstalled": "Zoom" },
+      { "Leader": "Bob", "Employee": "Jim", "App Uninstalled": "Skype" },
+      { "Leader": "Bob", "Employee": "Max", "App Uninstalled": "Zoom" },
+      { "Leader": "Charlie", "Employee": "Eve", "App Uninstalled": "Teams" },
+      { "Leader": "Charlie", "Employee": "Sam", "App Uninstalled": "Zoom" },
+      { "Leader": "Dave", "Employee": "Rick", "App Uninstalled": "Slack" }  // Let's say we want to skip this later
+    ];
+
+    // STEP 1: Filter only rows with a valid Leader
+    const validRows = jsonData.filter(item =>
+      item.Leader && typeof item.Leader === 'string' && item.Leader.trim() !== ''
+    );
+
+    // STEP 2: Generate leaders list from only valid rows (can be dynamically filtered later)
+    const leaders = [...new Set(validRows.map(item => item.Leader))];
+
+    // STEP 3: Get all unique applications
+    const apps = [...new Set(validRows.map(item => item["App Uninstalled"]))];
+
+    // STEP 4: Assign colors to apps
+    const appColors = {
+      Zoom: 'rgba(75, 192, 192, 0.8)',
+      Slack: 'rgba(255, 99, 132, 0.8)',
+      Skype: 'rgba(255, 206, 86, 0.8)',
+      Teams: 'rgba(153, 102, 255, 0.8)'
+    };
+
+    // STEP 5: Prepare datasets with double-check for valid leaders
+    const datasets = apps.map(app => {
+      const data = leaders.map(leader => {
+        // Count uninstallations for this app and leader, only if both are valid
+        return validRows.filter(item =>
+          item.Leader === leader &&
+          item["App Uninstalled"] === app &&
+          leaders.includes(item.Leader)
+        ).length;
+      });
+
+      return {
+        label: app,
+        data,
+        backgroundColor: appColors[app] || 'rgba(100, 100, 100, 0.8)',
+        stack: 'stack1'
+      };
+    });
+
+    // STEP 6: Create chart
+    const ctx = document.getElementById('uninstallChart').getContext('2d');
+    const uninstallChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: leaders,
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          },
+          legend: {
+            position: 'top'
+          }
+        },
+        scales: {
+          x: {
+            stacked: true
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
