@@ -1,0 +1,22 @@
+{
+  "name": "tron-legacy-neon-theme",
+  "displayName": "Tron Legacy Neon Theme",
+  "description": "A futuristic VS Code theme inspired by Disney's Tron, with glowing neon cyan and orange accents.",
+  "version": "1.0.0",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Tron Legacy Neon",
+        "uiTheme": "vs-dark",
+        "path": "./themes/tron-legacy-neon-color-theme.json"
+      }
+    ]
+  }
+}
